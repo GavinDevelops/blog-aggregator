@@ -35,3 +35,12 @@ func (config *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user
 	}
 	respondWithJson(w, http.StatusCreated, feed)
 }
+
+func (config *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, getErr := config.DB.GetFeeds(r.Context())
+	if getErr != nil {
+		respondWithError(w, http.StatusInternalServerError, getErr.Error())
+		return
+	}
+	respondWithJson(w, http.StatusOK, feeds)
+}

@@ -11,8 +11,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type authedHandler func(http.ResponseWriter, *http.Request, database.User)
-
 type apiConfig struct {
 	DB *database.Queries
 }
@@ -33,6 +31,7 @@ func main() {
 	mux.HandleFunc("POST /v1/users", config.createUser)
 	mux.HandleFunc("GET /v1/users", config.middlewareAuth(config.getUser))
 	mux.HandleFunc("POST /v1/feeds", config.middlewareAuth(config.createFeed))
+	mux.HandleFunc("GET /v1/feeds", config.getFeeds)
 	server := &http.Server{
 		Handler: mux,
 		Addr:    ":" + port,

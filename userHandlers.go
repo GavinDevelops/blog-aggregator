@@ -3,25 +3,11 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/GavinDevelops/blog-aggregator/internal/database"
 	"github.com/google/uuid"
 )
-
-func (config *apiConfig) middlewareAuth(handler authedHandler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		apiKey := strings.TrimPrefix(authHeader, "ApiKey ")
-		user, getErr := config.DB.GetUserByApiKey(r.Context(), apiKey)
-		if getErr != nil {
-			respondWithError(w, http.StatusNotFound, getErr.Error())
-			return
-		}
-		handler(w, r, user)
-	}
-}
 
 func (config *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
