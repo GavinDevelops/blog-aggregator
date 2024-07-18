@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/GavinDevelops/blog-aggregator/internal/database"
@@ -35,4 +36,15 @@ func (config *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithJson(w, http.StatusCreated, user)
+}
+
+func (config *apiConfig) getUser(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	apiKey := strings.TrimPrefix(authHeader, "ApiKey ")
+	user, getErr := config.DB.GetUserByApiKey(r.Context(), apiKey)
+	if getErr != nil {
+		respondWithError(w, http.StatusBadRequest, getErr.Error())
+		return
+	}
+	respondWithJson(w, http.StatusOK, user)
 }
