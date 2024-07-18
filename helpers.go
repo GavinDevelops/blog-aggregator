@@ -6,6 +6,17 @@ import (
 	"net/http"
 )
 
+func readinessCheck(w http.ResponseWriter, _ *http.Request) {
+	type resp struct {
+		Status string `json:"status"`
+	}
+	respondWithJson(w, http.StatusOK, resp{Status: "ok"})
+}
+
+func errorCheck(w http.ResponseWriter, _ *http.Request) {
+	respondWithError(w, http.StatusInternalServerError, "Internal Server Error")
+}
+
 func respondWithError(w http.ResponseWriter, code int, msg string) {
 	if code > 499 {
 		log.Printf("Responding with 5XX error: %s\n", msg)

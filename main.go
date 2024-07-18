@@ -1,30 +1,30 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/GavinDevelops/blog-aggregator/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
-
-func readinessCheck(w http.ResponseWriter, _ *http.Request) {
-	type resp struct {
-		Status string `json:"status"`
-	}
-	respondWithJson(w, http.StatusOK, resp{Status: "ok"})
-}
-
-func errorCheck(w http.ResponseWriter, _ *http.Request) {
-	respondWithError(w, http.StatusInternalServerError, "Internal Server Error")
-}
 
 func main() {
 	godotenv.Load()
 	port := os.Getenv("PORT")
+	dbURL := os.Getenv("POSTGRESQL_URL")
+	db, dbErr := sql.Open("postgres", dbURL)
+	if dbErr != nil {
+		log.Fatal(dbErr)
+	}
+	dbQueries := database.New(db)
+	config := apiConfig{DB: dbQueries}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /v1/healthz", readinessCheck)
 	mux.HandleFunc("GET /v1/err", errorCheck)
+	mux.HandleFunc("POST /v1/users", config.createUser)
 	server := &http.Server{
 		Handler: mux,
 		Addr:    ":" + port,
