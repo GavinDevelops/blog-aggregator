@@ -11,6 +11,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type authedHandler func(http.ResponseWriter, *http.Request, database.User)
+
+type apiConfig struct {
+	DB *database.Queries
+}
+
 func main() {
 	godotenv.Load()
 	port := os.Getenv("PORT")
@@ -25,7 +31,8 @@ func main() {
 	mux.HandleFunc("GET /v1/healthz", readinessCheck)
 	mux.HandleFunc("GET /v1/err", errorCheck)
 	mux.HandleFunc("POST /v1/users", config.createUser)
-	mux.HandleFunc("GET /v1/users", config.getUser)
+	mux.HandleFunc("GET /v1/users", config.middlewareAuth(config.getUser))
+	mux.HandleFunc("POST /v1/feeds", config.middlewareAuth(config.createFeed))
 	server := &http.Server{
 		Handler: mux,
 		Addr:    ":" + port,
