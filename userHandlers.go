@@ -30,9 +30,9 @@ func (config *apiConfig) createUser(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, createErr.Error())
 		return
 	}
-	respondWithJson(w, http.StatusCreated, user)
+	respondWithJson(w, http.StatusCreated, databaseUserToUser(user))
 }
 
 func (config *apiConfig) getUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJson(w, http.StatusOK, user)
+	respondWithJson(w, http.StatusOK, databaseUserToUser(user))
 }

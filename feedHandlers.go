@@ -33,7 +33,7 @@ func (config *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user
 		respondWithError(w, http.StatusInternalServerError, createErr.Error())
 		return
 	}
-	respondWithJson(w, http.StatusCreated, feed)
+	respondWithJson(w, http.StatusCreated, databaseFeedToFeed(feed))
 }
 
 func (config *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
@@ -42,5 +42,5 @@ func (config *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, getErr.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK, feeds)
+	respondWithJson(w, http.StatusOK, databaseFeedsToFeeds(feeds))
 }
