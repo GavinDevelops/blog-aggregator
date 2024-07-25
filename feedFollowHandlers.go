@@ -48,7 +48,7 @@ func (c *apiConfig) deleteFeedFollow(w http.ResponseWriter, r *http.Request, use
 		respondWithError(w, http.StatusBadRequest, "Invalid Feed Follow ID")
 		return
 	}
-	deleteErr := c.DB.DeleteFeedFollow(
+	feedFollow, deleteErr := c.DB.DeleteFeedFollow(
 		r.Context(),
 		database.DeleteFeedFollowParams{
 			ID:     feedUUID,
@@ -58,5 +58,14 @@ func (c *apiConfig) deleteFeedFollow(w http.ResponseWriter, r *http.Request, use
 		respondWithError(w, http.StatusInternalServerError, deleteErr.Error())
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+	respondWithJson(w, http.StatusOK, databaseFeedFollowToFeedFollow(feedFollow))
+}
+
+func (c *apiConfig) getFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	userFeedFollows, getErr := c.DB.GetFeedFollowsForUser(r.Context(), user.ID)
+	if getErr != nil {
+		respondWithError(w, http.StatusBadRequest, getErr.Error())
+		return
+	}
+	respondWithJson(w, http.StatusOK, databaseFeedFollowsToFeedFollows(userFeedFollows))
 }

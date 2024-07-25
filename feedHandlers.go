@@ -33,7 +33,27 @@ func (config *apiConfig) createFeed(w http.ResponseWriter, r *http.Request, user
 		respondWithError(w, http.StatusInternalServerError, createErr.Error())
 		return
 	}
-	respondWithJson(w, http.StatusCreated, databaseFeedToFeed(feed))
+	feedFollow, createFollowErr := config.DB.CreateFeedFollows(
+		r.Context(),
+		database.CreateFeedFollowsParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			FeedID:    feed.ID,
+			UserID:    user.ID,
+		})
+	if createFollowErr != nil {
+		respondWithError(w, http.StatusInternalServerError, createFollowErr.Error())
+		return
+	}
+	type responseStruct struct {
+		Feed       Feed       `json:"feed"`
+		FeedFollow FeedFollow `json:"feed_follow"`
+	}
+	respondWithJson(w, http.StatusCreated, responseStruct{
+		Feed:       databaseFeedToFeed(feed),
+		FeedFollow: databaseFeedFollowToFeedFollow(feedFollow),
+	})
 }
 
 func (config *apiConfig) getFeeds(w http.ResponseWriter, r *http.Request) {
