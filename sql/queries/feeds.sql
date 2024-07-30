@@ -8,3 +8,10 @@ SELECT * from feeds;
 
 -- name: GetFeed :one
 SELECT * from feeds where id = $1;
+
+-- name: GetNextFeedsToFetch :many
+SELECT * from feeds ORDER BY last_fetched_at LIMIT $1;
+
+-- name: UpdateLastFetchedAt :one
+UPDATE feeds SET last_fetched_at = $1 WHERE id = $2
+RETURNING *;
