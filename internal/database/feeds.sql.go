@@ -7,7 +7,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -140,17 +139,12 @@ func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]Feed,
 }
 
 const updateLastFetchedAt = `-- name: UpdateLastFetchedAt :one
-UPDATE feeds SET last_fetched_at = $1 WHERE id = $2
+UPDATE feeds SET last_fetched_at = NOW() WHERE id = $1
 RETURNING id, created_at, updated_at, name, url, user_id, last_fetched_at
 `
 
-type UpdateLastFetchedAtParams struct {
-	LastFetchedAt sql.NullTime
-	ID            uuid.UUID
-}
-
-func (q *Queries) UpdateLastFetchedAt(ctx context.Context, arg UpdateLastFetchedAtParams) (Feed, error) {
-	row := q.db.QueryRowContext(ctx, updateLastFetchedAt, arg.LastFetchedAt, arg.ID)
+func (q *Queries) UpdateLastFetchedAt(ctx context.Context, id uuid.UUID) (Feed, error) {
+	row := q.db.QueryRowContext(ctx, updateLastFetchedAt, id)
 	var i Feed
 	err := row.Scan(
 		&i.ID,

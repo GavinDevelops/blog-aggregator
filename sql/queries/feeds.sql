@@ -13,5 +13,5 @@ SELECT * from feeds where id = $1;
 SELECT * from feeds ORDER BY last_fetched_at LIMIT $1;
 
 -- name: UpdateLastFetchedAt :one
-UPDATE feeds SET last_fetched_at = $1 WHERE id = $2
+UPDATE feeds SET last_fetched_at = NOW() WHERE id = $1
 RETURNING *;

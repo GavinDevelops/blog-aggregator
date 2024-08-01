@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/GavinDevelops/blog-aggregator/internal/database"
 	"github.com/joho/godotenv"
@@ -39,6 +40,10 @@ func main() {
 		Handler: mux,
 		Addr:    ":" + port,
 	}
+
+	const collectionConcurrency = 10
+	const collectionInterval = time.Minute
+	go startScraping(dbQueries, collectionConcurrency, collectionInterval)
 	log.Printf("Starting server on port: %v", port)
 	server.ListenAndServe()
 }
